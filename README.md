@@ -6,6 +6,13 @@
     Современная аналитическая платформа для отслеживания рыночных показателей криптовалют в реальном времени.
   </p>
 
+  <!-- Live Demo Button -->
+  <p align="center">
+    <a href="https://jokutrx.github.io/crypto-analytics-hub/" target="_blank">
+      <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-Смотреть_проект-2ea44f?style=for-the-badge&logo=github&logoColor=white" alt="Live Demo" />
+    </a>
+  </p>
+
   <!-- Badges -->
   <p align="center">
     <img src="https://img.shields.io/badge/Vue.js-3.5-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3" />
@@ -17,6 +24,13 @@
   </p>
 
 </div>
+
+---
+
+## 🌐 Live Demo
+
+Приложение развёрнуто и доступно в режиме онлайн:  
+👉 **[https://jokutrx.github.io/crypto-analytics-hub/](https://jokutrx.github.io/crypto-analytics-hub/)**
 
 ---
 
@@ -41,6 +55,7 @@
 * **Charts**: Chart.js, `vue-chartjs`
 * **HTTP Client**: Axios
 * **Testing**: Vitest, `@pinia/testing`
+* **Deployment**: GitHub Pages (`gh-pages`)
 
 ---
 
@@ -56,17 +71,19 @@ src/
 ├── features/             # Пользовательские фичи (Поиск, График монеты, Избранное)
 ├── entities/             # Бизнес-сущности (Монеты: типы, API, Pinia-стор)
 └── shared/               # Переиспользуемые утилиты, UI-кит, хелперы (formatters)
+```
+
 ⚡️ Быстрый старт
 Требования
 Node.js >= 18.0.0
 
 pnpm (рекомендуется) / npm / yarn
 
-Установка и запуск
+Установка и запуск локально
 Клонируйте репозиторий:
 
 Bash
-git clone [https://github.com/your-username/crypto-analytics-hub.git](https://github.com/your-username/crypto-analytics-hub.git)
+git clone [https://github.com/jokutrx/crypto-analytics-hub.git](https://github.com/jokutrx/crypto-analytics-hub.git)
 cd crypto-analytics-hub
 Установите зависимости:
 
@@ -76,12 +93,12 @@ pnpm install
 
 Bash
 pnpm dev
-Приложение откроется по адресу http://localhost:5173.
+Приложение откроется по адресу http://localhost:5173/crypto-analytics-hub/.
 
-Сборка для продакшена:
+Деплой на GitHub Pages:
 
 Bash
-pnpm build
+pnpm run deploy
 🧪 Тестирование
 Для проверки работы бизнес-логики и утилит используются юнит-тесты на Vitest:
 
