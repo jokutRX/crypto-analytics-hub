@@ -1,0 +1,1 @@
+export { default as CryptoTable } from './ui/CryptoTable.vue'
