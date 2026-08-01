@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config' // <-- Импортируем из vitest/config
 import vue from '@vitejs/plugin-vue'
-import fileURLToPath from 'node:url'
-import path from 'node:path'
+import path from 'path'
 
 export default defineConfig({
   plugins: [vue()],
@@ -9,5 +8,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+  },
+  test: {
+    globals: true,
+    environment: 'node',
   },
 })
