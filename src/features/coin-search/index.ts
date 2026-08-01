@@ -1,0 +1,1 @@
+export { default as CoinSearch } from './ui/CoinSearch.vue'
