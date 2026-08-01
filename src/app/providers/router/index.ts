@@ -1,17 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'market',
-      component: () => import('@/pages/market/ui/MarketPage.vue'), // Указываем правильный путь к MarketPage
+      component: () => import('@/pages/market/ui/MarketPage.vue'),
     },
     {
       path: '/coin/:id',
       name: 'coin-details',
-      component: () => import('@/pages/market/ui/CoinDetailPage.vue'), // Указываем путь к CoinDetailPage
+      component: () => import('@/pages/market/ui/CoinDetailPage.vue'),
     },
   ],
 })
