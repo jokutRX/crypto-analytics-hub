@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useCoinStore } from '@/entities/coin' 
-import { CoinSearch } from '@/features/coin-search' // <-- Импортируем фичу
+import { useCoinStore, type SortKey } from '@/entities/coin' 
+import { CoinSearch } from '@/features/coin-search'
 import { formatCurrency, formatPercent } from '@/shared/lib/formatters'
 
 const coinStore = useCoinStore()
@@ -13,19 +13,23 @@ onMounted(() => {
 const handleRefresh = () => {
   coinStore.fetchCoins(true)
 }
+
+// Хелпер для отображения стрелочки сортировки
+const getSortIcon = (key: SortKey) => {
+  if (coinStore.sortKey !== key) return '↕'
+  return coinStore.sortOrder === 'asc' ? '▲' : '▼'
+}
 </script>
 
 <template>
   <div class="w-full max-w-6xl mx-auto p-4">
-    <!-- Шапка с заголовоком, Поиском и Кнопкой -->
+    <!-- Шапка страницы -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <h2 class="text-2xl font-bold text-white">🔥 Рынок криптовалют</h2>
       
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <!-- Компонент поиска -->
         <CoinSearch />
 
-        <!-- Кнопка обновления -->
         <button 
           @click="handleRefresh" 
           :disabled="coinStore.isLoading"
@@ -54,19 +58,44 @@ const handleRefresh = () => {
     <!-- Таблица -->
     <div v-else class="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900/60 shadow-xl">
       <table class="w-full text-left text-sm text-gray-300">
-        <thead class="bg-gray-800/80 text-xs uppercase text-gray-400 border-b border-gray-700">
+        <thead class="bg-gray-800/80 text-xs uppercase text-gray-400 border-b border-gray-700 select-none">
           <tr>
-            <th class="py-3 px-4">#</th>
+            <!-- Кликабельные колонки со стрелочками -->
+            <th 
+              @click="coinStore.toggleSort('market_cap_rank')" 
+              class="py-3 px-4 cursor-pointer hover:text-white transition-colors"
+            >
+              # <span class="text-xs ml-1">{{ getSortIcon('market_cap_rank') }}</span>
+            </th>
+            
             <th class="py-3 px-4">Монета</th>
-            <th class="py-3 px-4 text-right">Цена</th>
-            <th class="py-3 px-4 text-right">24ч %</th>
-            <th class="py-3 px-4 text-right">Капитализация</th>
+            
+            <th 
+              @click="coinStore.toggleSort('current_price')" 
+              class="py-3 px-4 text-right cursor-pointer hover:text-white transition-colors"
+            >
+              Цена <span class="text-xs ml-1">{{ getSortIcon('current_price') }}</span>
+            </th>
+            
+            <th 
+              @click="coinStore.toggleSort('price_change_percentage_24h')" 
+              class="py-3 px-4 text-right cursor-pointer hover:text-white transition-colors"
+            >
+              24ч % <span class="text-xs ml-1">{{ getSortIcon('price_change_percentage_24h') }}</span>
+            </th>
+            
+            <th 
+              @click="coinStore.toggleSort('market_cap')" 
+              class="py-3 px-4 text-right cursor-pointer hover:text-white transition-colors"
+            >
+              Капитализация <span class="text-xs ml-1">{{ getSortIcon('market_cap') }}</span>
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
-          <!-- Рендерим filteredCoins вместо coins -->
+          <!-- Выводим отсортированный массив sortedCoins -->
           <tr 
-            v-for="coin in coinStore.filteredCoins" 
+            v-for="coin in coinStore.sortedCoins" 
             :key="coin.id"
             class="hover:bg-gray-800/50 transition-colors"
           >
@@ -92,8 +121,8 @@ const handleRefresh = () => {
             </td>
           </tr>
 
-          <!-- Заглушка, если ничего не найдено -->
-          <tr v-if="!coinStore.filteredCoins.length">
+          <!-- Заглушка при пустом поиске -->
+          <tr v-if="!coinStore.sortedCoins.length">
             <td colspan="5" class="py-8 text-center text-gray-500">
               Монеты по запросу «{{ coinStore.searchQuery }}» не найдены
             </td>

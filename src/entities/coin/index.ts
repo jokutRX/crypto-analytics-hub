@@ -1,6 +1,4 @@
-
 export type { Coin } from './model/types'
+export type { SortKey, SortOrder } from './model/store'
 export { getCoinsMarket } from './api/getCoins'
-
-
-export { useCoinStore } from './model/store' 
+export { useCoinStore } from './model/store'
