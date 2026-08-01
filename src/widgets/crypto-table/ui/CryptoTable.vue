@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCoinStore, type SortKey } from '@/entities/coin' 
 import { CoinSearch } from '@/features/coin-search'
 import { formatCurrency, formatPercent } from '@/shared/lib/formatters'
 
 const coinStore = useCoinStore()
+const router = useRouter()
 
 onMounted(() => {
   coinStore.fetchCoins(false)
@@ -12,6 +14,11 @@ onMounted(() => {
 
 const handleRefresh = () => {
   coinStore.fetchCoins(true)
+}
+
+// Переход на детальную страницу монеты
+const goToCoinDetails = (coinId: string) => {
+  router.push(`/coin/${coinId}`)
 }
 
 // Хелпер для отображения стрелочки сортировки
@@ -93,11 +100,12 @@ const getSortIcon = (key: SortKey) => {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
-          <!-- Выводим отсортированный массив sortedCoins -->
+          <!-- Добавлены @click и cursor-pointer для строки -->
           <tr 
             v-for="coin in coinStore.sortedCoins" 
             :key="coin.id"
-            class="hover:bg-gray-800/50 transition-colors"
+            @click="goToCoinDetails(coin.id)"
+            class="hover:bg-gray-800/50 transition-colors cursor-pointer"
           >
             <td class="py-4 px-4 font-mono text-gray-500">{{ coin.market_cap_rank }}</td>
             <td class="py-4 px-4 flex items-center gap-3">

@@ -1,7 +1,5 @@
-<script setup lang="ts">
-import MarketPage from '@/pages/market/ui/MarketPage.vue'
-</script>
-
 <template>
-  <MarketPage />
+  <div class="min-h-screen bg-gray-950 text-white font-sans">
+    <router-view />
+  </div>
 </template>
