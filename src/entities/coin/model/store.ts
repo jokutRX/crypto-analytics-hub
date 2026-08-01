@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { getCoinsMarket } from '../api/getCoins'
 import type { Coin } from './types'
 
-// Типы для ключей сортировки
 export type SortKey = 'market_cap_rank' | 'current_price' | 'price_change_percentage_24h' | 'market_cap'
 export type SortOrder = 'asc' | 'desc'
 
@@ -13,27 +12,55 @@ export const useCoinStore = defineStore('coin', () => {
   const error = ref<string | null>(null)
   const lastFetchTime = ref<number | null>(null)
   
-  // Поиск и сортировка
+  // Поиск, сортировка и фильтрация
   const searchQuery = ref<string>('')
   const sortKey = ref<SortKey>('market_cap_rank')
   const sortOrder = ref<SortOrder>('asc')
+  const isFavoritesOnly = ref<boolean>(false) // Показать только избранные
+
+  // Массив ID избранных монет (будет сохраняться в localStorage)
+  const favoriteIds = ref<string[]>([])
 
   const CACHE_DURATION = 30 * 1000
 
-  // 1. Сначала фильтруем монеты по поиску
-  const filteredCoins = computed(() => {
-    const query = searchQuery.value.trim().toLowerCase()
-    
-    if (!query) return coins.value
+  // 1. Добавление / Удаление из избранного
+  function toggleFavorite(coinId: string) {
+    const index = favoriteIds.value.indexOf(coinId)
+    if (index === -1) {
+      favoriteIds.value.push(coinId)
+    } else {
+      favoriteIds.value.splice(index, 1)
+    }
+  }
 
-    return coins.value.filter(
-      (coin) =>
-        coin.name.toLowerCase().includes(query) ||
-        coin.symbol.toLowerCase().includes(query)
-    )
+  // Проверка, находится ли монета в избранном
+  function isFavorite(coinId: string): boolean {
+    return favoriteIds.value.includes(coinId)
+  }
+
+  // 2. Фильтрация монет (Поиск + Избранное)
+  const filteredCoins = computed(() => {
+    let result = coins.value
+
+    // Фильтр по Избранным
+    if (isFavoritesOnly.value) {
+      result = result.filter((coin) => favoriteIds.value.includes(coin.id))
+    }
+
+    // Фильтр по поиску
+    const query = searchQuery.value.trim().toLowerCase()
+    if (query) {
+      result = result.filter(
+        (coin) =>
+          coin.name.toLowerCase().includes(query) ||
+          coin.symbol.toLowerCase().includes(query)
+      )
+    }
+
+    return result
   })
 
-  // 2. Затем сортируем уже отфильтрованный список
+  // 3. Сортировка отфильтрованного списка
   const sortedCoins = computed(() => {
     return [...filteredCoins.value].sort((a, b) => {
       const aVal = a[sortKey.value] ?? 0
@@ -47,13 +74,10 @@ export const useCoinStore = defineStore('coin', () => {
     })
   })
 
-  // Функция переключения сортировки по клику на заголовок
   function toggleSort(key: SortKey) {
     if (sortKey.value === key) {
-      // Если кликаем по той же колонке — меняем порядок asc <-> desc
       sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
     } else {
-      // Если по новой — устанавливаем ключ и сбрасываем на asc (или desc для процентов/цены)
       sortKey.value = key
       sortOrder.value = key === 'market_cap_rank' ? 'asc' : 'desc'
     }
@@ -66,10 +90,6 @@ export const useCoinStore = defineStore('coin', () => {
       return
     }
 
-    if (force && lastFetchTime.value && now - lastFetchTime.value < 5000) {
-      return
-    }
-
     isLoading.value = true
     error.value = null
 
@@ -78,9 +98,7 @@ export const useCoinStore = defineStore('coin', () => {
       coins.value = data
       lastFetchTime.value = Date.now()
     } catch (err: any) {
-      error.value = err?.response?.status === 429
-        ? 'Превышен лимит запросов API. Данные временно не обновляются.'
-        : 'Не удалось загрузить новые данные.'
+      error.value = 'Не удалось загрузить данные.'
     } finally {
       isLoading.value = false
     }
@@ -95,12 +113,20 @@ export const useCoinStore = defineStore('coin', () => {
     searchQuery,
     sortKey,
     sortOrder,
-    sortedCoins, // Возвращаем отсортированный список в компонент
+    isFavoritesOnly,
+    favoriteIds,
+    sortedCoins,
     isLoading,
     error,
     lastFetchTime,
     fetchCoins,
     setSearchQuery,
     toggleSort,
+    toggleFavorite,
+    isFavorite,
   }
+}, {
+  persist: {
+    pick: ['favoriteIds'],
+  },
 })
